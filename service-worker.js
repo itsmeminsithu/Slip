@@ -1,7 +1,7 @@
 // Slip service worker — caches the app shell so it opens offline.
 // AI scanning still needs internet; everything else works without it.
 const CACHE = "slip-v1";
-const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png"];
+const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

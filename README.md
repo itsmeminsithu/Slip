@@ -16,8 +16,9 @@ Everything runs in the browser. Your data is stored on your own device
 index.html          the whole app
 manifest.json       PWA metadata (installable app)
 service-worker.js   offline caching of the app shell
-icons/              app icons (192, 512)
-proxy/worker.js     OPTIONAL server proxy so a public deploy can hide the API key
+icon-192.png        app icon (192)
+icon-512.png        app icon (512)
+worker.js           OPTIONAL server proxy so a public deploy can hide the API key
 ```
 
 ---
@@ -131,3 +132,17 @@ stays server-side, then point `askClaude()` in `index.html` at the Worker URL.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Live preview (after merge — not live yet)
+
+This is a static PWA, so it is GitHub Pages-ready with no extra config.
+After this PR is merged, enable it in a browser (Pages settings cannot be
+set via the GitHub App):
+
+1. Repo **Settings → Pages → Build and deployment → Deploy from a branch**.
+2. Branch: `main`, folder: `/ (root)`. Save.
+3. The site will be at https://itsmeminsithu.github.io/Slip/
+
+No preview URL is live until that post-merge step is done. The AI slip
+scanning still needs a key pasted in Settings (or the `worker.js` proxy
+deploy described in section 5) — Pages hosting alone does not add it.
