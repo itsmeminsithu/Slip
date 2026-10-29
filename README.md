@@ -1,16 +1,10 @@
 # Slip — Money Manager
 
-A single-file, offline-capable daily **income & expense** manager: accounts with live
-balances, transfers, per-business tagging, day/week/month charts, day-by-day split,
-search, backup/restore, and **AI slip scanning** (photograph a receipt or bank/PromptPay/
-KBZPay slip and it extracts the amount, merchant, date, category, and payment method).
+Slip tracks daily income and expenses. It is one HTML file, it works offline, and your data stays in your browser (`localStorage`). No server, no account.
 
-Everything runs in the browser. Your data is stored on your own device
-(`localStorage`) — there is no server and no account.
+What it does: accounts with balances that update as you enter things, transfers, a tag per business, day/week/month charts, a day-by-day split, search, and backup/restore. It can also read a slip for you: photograph a receipt, or a bank/PromptPay/KBZPay slip, and it pulls out the amount, merchant, date, category and payment method. That part needs an API key — see section 5.
 
----
-
-## Contents
+## Files
 
 ```
 index.html          the whole app
@@ -21,24 +15,17 @@ icon-512.png        app icon (512)
 worker.js           OPTIONAL server proxy so a public deploy can hide the API key
 ```
 
----
-
 ## 1. Run it locally
-
-From this folder:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Open **http://localhost:8080/** — done. (Use the local server, not a `file://`
-double-click; Safari blocks storage and network on `file://`.)
+Open **http://localhost:8080/**. Use the local server rather than double-clicking the file: Safari blocks storage and network on `file://`.
 
-Node alternative: `npx serve` or `npx http-server -p 8080`.
+Node works too: `npx serve` or `npx http-server -p 8080`.
 
----
-
-## 2. Put it on GitHub + go live (GitHub Pages)
+## 2. Put it on GitHub Pages
 
 ```bash
 git init
@@ -49,49 +36,43 @@ git remote add origin https://github.com/itsmeminsithu/slip.git   # your repo UR
 git push -u origin main
 ```
 
-Then on GitHub: **Settings → Pages → Build from branch → `main` / root → Save.**
-Your app goes live at `https://itsmeminsithu.github.io/slip/` over HTTPS
-(HTTPS is required for PWA install and for building an APK).
+Then on GitHub: **Settings → Pages → Build from branch → `main` / root → Save.** It goes live at `https://itsmeminsithu.github.io/slip/` over HTTPS. HTTPS is required for PWA install and for building an APK.
 
-> Note on privacy: the login on the page is a *soft lock* — the password hash is in
-> `index.html`, so anyone with the URL and some skill could bypass it. If you want the
-> tool private, keep the **repo private** and/or change the hash (see Security below).
+One privacy note: the login on the page is a *soft lock*. The password hash sits in `index.html`, so someone with the URL and some skill can get past it. If you want this private, keep the **repo private** and/or change the hash (Security, below).
 
----
+## 3. Install it as an app
 
-## 3. Install as an app (no APK needed)
+Once it is live over HTTPS, no APK is needed:
 
-Once it's live over HTTPS:
-
-- **Android (Chrome):** open the URL → menu (⋮) → **Install app** / **Add to Home screen**.
-  It launches full-screen like a native app and works offline.
+- **Android (Chrome):** open the URL → menu (⋮) → **Install app** / **Add to Home screen**. It opens full-screen and works offline.
 - **iPhone (Safari):** Share → **Add to Home Screen**.
 
-For most people this is all you need — it *is* the app.
+For most people that is the app.
 
----
+## 4. Build an Android APK
 
-## 4. Build a real Android APK
+The app has to be hosted over HTTPS first (step 2). Then one of these:
 
-You need the app hosted over HTTPS first (step 2). Then pick one:
+**PWABuilder — no tooling**
 
-### Easiest — PWABuilder (no tooling)
 1. Go to **https://www.pwabuilder.com**
 2. Paste your live URL (e.g. `https://itsmeminsithu.github.io/slip/`).
 3. Click **Package for stores → Android → Download**.
-4. You get a signed `.apk` (and `.aab` for Play Store). Copy the `.apk` to your phone
-   and install it (enable "install unknown apps" for your file manager first).
+4. You get a signed `.apk` (and `.aab` for Play Store). Copy the `.apk` to your phone and install it (turn on "install unknown apps" for your file manager first).
 
-### Developer route — Bubblewrap (Google's TWA tool)
+**Bubblewrap — Google's TWA tool**
+
 ```bash
 npm i -g @bubblewrap/cli
 bubblewrap init --manifest https://itsmeminsithu.github.io/slip/manifest.json
 bubblewrap build
 # -> app-release-signed.apk
 ```
-Bubblewrap will offer to install the JDK + Android SDK if you don't have them.
 
-### Full control — Capacitor (bundles the web app into a native project)
+Bubblewrap offers to install the JDK and Android SDK if you do not have them.
+
+**Capacitor — bundles the app into a native project**
+
 ```bash
 npm init -y
 npm i @capacitor/core @capacitor/cli @capacitor/android
@@ -100,34 +81,20 @@ npx cap add android
 npx cap copy
 npx cap open android      # builds the APK in Android Studio
 ```
-Capacitor bundles the files inside the APK, so it doesn't depend on GitHub Pages
-staying up.
 
----
+Capacitor puts the files inside the APK, so it does not depend on GitHub Pages staying up.
 
-## 5. Turn on AI slip scanning
+## 5. Turn on slip scanning
 
-Scanning uses the Anthropic API. Open **Settings** in the app → paste your key from
-**console.anthropic.com** → Save. The key is stored only in your browser, never in the
-repo or your backups. Without a key, everything works except auto-reading — it just
-opens the manual entry form.
+Scanning uses the Anthropic API. In the app, open **Settings**, paste your key from **console.anthropic.com**, save. The key is kept only in your browser — not in the repo, not in your backups. With no key, everything else still works; scanning just opens the manual entry form instead.
 
-**Publishing publicly?** Don't rely on each visitor pasting a key. Deploy
-`proxy/worker.js` as a Cloudflare Worker (instructions inside the file) so your key
-stays server-side, then point `askClaude()` in `index.html` at the Worker URL.
+**Publishing publicly?** Do not expect each visitor to paste a key. Deploy `proxy/worker.js` as a Cloudflare Worker (instructions are inside the file) so the key stays server-side, then point `askClaude()` in `index.html` at the Worker URL.
 
----
+## Security
 
-## Security notes
-
-- **Login is a soft lock**, not encryption. Fine for a personal device; not real access
-  control. To change the password: run
-  `printf '%s' 'YOUR_NEW_PASSWORD' | shasum -a 256` and paste the hash into the `PWHASH`
-  value in `index.html`.
-- **Never commit an API key.** `.gitignore` already excludes `.env` and key files. The
-  in-app key lives in `localStorage`, not in the code.
-- **Back up regularly.** Data lives in one browser. Settings → Backup exports a `.json`
-  you can restore anywhere; the app also nudges you.
+- **The login is a soft lock**, not encryption. Fine on a personal device, not real access control. To change the password: run `printf '%s' 'YOUR_NEW_PASSWORD' | shasum -a 256` and paste the hash into the `PWHASH` value in `index.html`.
+- **Never commit an API key.** `.gitignore` already excludes `.env` and key files. The in-app key lives in `localStorage`, not the code.
+- **Back up.** Your data lives in one browser. Settings → Backup exports a `.json` you can restore anywhere. The app nudges you about this too.
 
 ## License
 
@@ -135,14 +102,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Live preview (after merge — not live yet)
 
-This is a static PWA, so it is GitHub Pages-ready with no extra config.
-After this PR is merged, enable it in a browser (Pages settings cannot be
-set via the GitHub App):
+Slip is a static PWA, so GitHub Pages needs no extra config. Pages settings cannot be set via the GitHub App, so after this PR merges, turn it on in a browser:
 
 1. Repo **Settings → Pages → Build and deployment → Deploy from a branch**.
 2. Branch: `main`, folder: `/ (root)`. Save.
 3. The site will be at https://itsmeminsithu.github.io/Slip/
 
-No preview URL is live until that post-merge step is done. The AI slip
-scanning still needs a key pasted in Settings (or the `worker.js` proxy
-deploy described in section 5) — Pages hosting alone does not add it.
+No preview URL is live until that step is done. Slip scanning still needs a key pasted in Settings (or the `worker.js` proxy from section 5). Pages hosting on its own does not add it.
